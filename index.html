@@ -2,17 +2,24 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <!-- スマホ等のタップ時自動ズーム・見切れ防止 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>株トレード収支表</title>
-  <!-- Tailwind CSS CDN -->
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TRADE LOG">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJiZyIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzBlYTVlOSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFkNGVkOCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTEyIiBmaWxsPSJ1cmwoI2JnKSIvPjxwYXRoIGQ9Ik0xMjAgMzgwIEwxMjAgMjgwIEwyMDAgMjgwIEwyMDAgMzgwIFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9IjAuOSIvPjxwYXRoIGQ9Ik0yMjAgMzgwIEwyMjAgMTgwIEwzMDAgMTgwIEwzMDAgMzgwIFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9IjAuOSIvPjxwYXRoIGQ9Ik0zMjAgMzgwIEwzMjAgMTAwIEw0MDAgMTAwIEw0MDAgMzgwIFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9IjAuOSIvPjwvc3ZnPg==">
+
+  <title>TRADE LOG</title>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js CDN -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Google Fonts: スタイリッシュで美しい日本語＆近未来デジタル英数フォント -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  
   <style>
     body {
       font-family: 'Noto Sans JP', sans-serif;
@@ -24,387 +31,335 @@
       font-family: 'Orbitron', sans-serif;
     }
 
-    /* クールでスタイリッシュなスクロールバー */
-    ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
+    /* 極上の滑らかトランジション（共通クラス） */
+    .tab-content {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px) scale(0.99);
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 0;
+      pointer-events: none;
     }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.7);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(14, 165, 233, 0.5);
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(14, 165, 233, 0.9);
-      box-shadow: 0 0 8px rgba(14, 165, 233, 0.8);
-    }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+    .tab-content.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+      z-index: 10;
+      pointer-events: auto;
     }
 
-    /* iOSでの入力欄の勝手な拡大・高さを完全ガード */
+    /* スクロールバーのデザイン */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.3); }
+    ::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.6); border-radius: 9999px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* iOSガード */
     input[type="date"], input[type="text"], input[type="number"], select {
-      -webkit-appearance: none;
-      appearance: none;
-      box-sizing: border-box;
-    }
-    input[type="date"]::-webkit-date-and-time-value {
-      margin: 0;
-      padding: 0;
+      -webkit-appearance: none; appearance: none; box-sizing: border-box;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-dvh w-screen overflow-hidden flex flex-col selection:bg-sky-500 selection:text-white">
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 h-dvh w-screen overflow-hidden flex flex-col selection:bg-cyan-500 selection:text-white">
 
-  <!-- 隠しファイル入力欄（バックアップ復元用） -->
   <input type="file" id="importFile" accept=".json" class="hidden">
-
-  <!-- 過去に入力した銘柄・メモの自動補完用 -->
   <datalist id="stockHistoryList"></datalist>
   <datalist id="memoHistoryList"></datalist>
 
   <!-- =========================================================
-       1. スタイリッシュ・ヘッダー ＆ データ管理コントロール
+       1. コンパクト・ヘッダー (スタイリッシュなロゴと英字タイトル)
   ========================================================== -->
-  <header class="bg-slate-900/95 border-b border-slate-800 px-3.5 py-2 flex flex-wrap justify-between items-center gap-2 shrink-0 z-20 shadow-md">
-    <!-- タイトル -->
+  <header class="bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 px-3 py-1.5 flex justify-between items-center z-20 shrink-0">
     <div class="flex items-center gap-2">
-      <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-sky-500 to-emerald-500 flex items-center justify-center font-bold text-white text-xs shadow-md">
-        株
+      <!-- クールなSVGチャートアイコン -->
+      <div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+        </svg>
       </div>
       <div class="leading-none">
-        <h1 class="text-xs sm:text-sm font-bold text-white tracking-wide">
-          株トレード収支表
-        </h1>
-        <p class="text-[10px] text-slate-400 mt-0.5">売買記録と資産推移マネージャー</p>
+        <h1 class="text-xs font-orbitron font-bold text-white tracking-widest mt-0.5">TRADE LOG</h1>
+        <div class="flex items-center gap-1.5 mt-0.5">
+          <span class="text-slate-400 text-[9px] font-cyber uppercase tracking-wider">Total Profit:</span>
+          <span id="miniTotalProfit" class="font-cyber font-bold text-cyan-400 text-[11px]">0 円</span>
+        </div>
       </div>
     </div>
-
-    <!-- 常時表示：簡易ステータスバー -->
-    <div class="flex items-center gap-2.5 bg-slate-950 border border-slate-800 px-3 py-1 rounded-full text-xs shadow-inner">
-      <div class="flex items-center gap-1.5">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="text-slate-400 text-[10px]">総利益:</span>
-        <span id="miniTotalProfit" class="font-cyber font-bold text-white text-xs sm:text-sm">0 円</span>
-      </div>
-      <div class="h-3 w-px bg-slate-800"></div>
-      <div class="flex items-center gap-1.5">
-        <span class="text-slate-400 text-[10px]">勝率:</span>
-        <span id="miniWinRate" class="font-cyber font-bold text-sky-300 text-xs sm:text-sm">0.0%</span>
-      </div>
-    </div>
-
-    <!-- データ保存・読込・初期化ボタン -->
     <div class="flex items-center gap-1 shrink-0">
-      <button onclick="resetAllData()" class="bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all">
-        初期化
-      </button>
-      <button onclick="triggerImport()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all">
-        復元
-      </button>
-      <button onclick="exportJson()" class="bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1 rounded-full text-[11px] font-bold transition-all shadow">
-        保存
-      </button>
-      <button onclick="exportCsv()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded-full text-[11px] font-bold transition-all shadow">
-        CSV
-      </button>
+      <button onclick="resetAllData()" class="bg-slate-900 text-rose-400 border border-slate-800 px-2 py-1 rounded-md text-[10px] font-bold transition hover:bg-slate-800">初期化</button>
+      <button onclick="triggerImport()" class="bg-slate-900 text-slate-300 border border-slate-800 px-2 py-1 rounded-md text-[10px] font-bold transition hover:bg-slate-800">復元</button>
+      <button onclick="exportJson()" class="bg-cyan-600/90 text-white px-2 py-1 rounded-md text-[10px] font-bold shadow transition hover:bg-cyan-500">保存</button>
+      <button onclick="exportCsv()" class="bg-blue-600/90 text-white px-2 py-1 rounded-md text-[10px] font-bold shadow transition hover:bg-blue-500">CSV</button>
     </div>
   </header>
 
   <!-- =========================================================
-       2. タブメニュー（改行なし1行・完全フィット）
+       2. タブメニュー
   ========================================================== -->
-  <nav class="bg-slate-900/60 border-b border-slate-800 px-3.5 py-1.5 shrink-0 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-    <button onclick="switchTab('dashboard')" id="tabBtn-dashboard" class="tab-btn px-3.5 py-1 text-xs font-bold rounded-full transition-all whitespace-nowrap shrink-0">
-      📈 資産ダッシュボード
+  <nav class="bg-slate-900/40 border-b border-slate-800/80 px-2 py-1.5 shrink-0 flex items-center gap-1 overflow-x-auto no-scrollbar z-20">
+    <button onclick="switchTab('dashboard')" id="tabBtn-dashboard" class="tab-btn active-tab px-3 py-1.5 text-[11px] font-bold rounded-full transition-all duration-300 bg-cyan-500 text-white shadow-lg shadow-cyan-500/20 whitespace-nowrap shrink-0">
+      📈 ダッシュボード
     </button>
-    <button onclick="switchTab('input')" id="tabBtn-input" class="tab-btn px-3.5 py-1 text-xs font-bold rounded-full transition-all whitespace-nowrap shrink-0">
-      ✏️ トレードを記録・修正
+    <button onclick="switchTab('input')" id="tabBtn-input" class="tab-btn px-3 py-1.5 text-[11px] font-bold rounded-full transition-all duration-300 text-slate-400 hover:text-slate-200 hover:bg-slate-800 whitespace-nowrap shrink-0">
+      ✏️ トレード登録
     </button>
-    <button onclick="switchTab('history')" id="tabBtn-history" class="tab-btn px-3.5 py-1 text-xs font-bold rounded-full transition-all whitespace-nowrap shrink-0">
-      📋 取引履歴一覧
+    <button onclick="switchTab('history')" id="tabBtn-history" class="tab-btn px-3 py-1.5 text-[11px] font-bold rounded-full transition-all duration-300 text-slate-400 hover:text-slate-200 hover:bg-slate-800 whitespace-nowrap shrink-0">
+      📋 取引履歴
     </button>
   </nav>
 
   <!-- =========================================================
-       3. メイン画面（絶対にボタンが途切れない・見切れない安全レイアウト）
+       3. メイン画面（統一されたパディングと絶対配置コンテナ）
   ========================================================== -->
-  <main class="flex-1 min-h-0 min-w-0 p-2.5 sm:p-3.5 overflow-hidden relative flex flex-col">
+  <main class="flex-1 min-h-0 min-w-0 relative">
 
     <!-- ==============================================
          TAB 1: 資産ダッシュボード
     =============================================== -->
-    <div id="tabContent-dashboard" class="tab-content h-full flex flex-col gap-2.5 min-h-0 min-w-0">
-      
+    <div id="tabContent-dashboard" class="tab-content active p-2 sm:p-3 flex flex-col gap-2 min-h-0">
       <!-- 成績4カード -->
-      <section class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 shrink-0 min-w-0">
-        <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl shadow relative overflow-hidden min-w-0">
-          <div class="absolute top-0 left-0 w-1 h-full bg-sky-500"></div>
-          <p class="text-[10px] text-slate-400 font-bold uppercase">累計実現損益</p>
-          <p id="summaryTotalProfit" class="text-base sm:text-xl font-orbitron font-bold mt-1 truncate text-white">0 円</p>
+      <section class="grid grid-cols-2 gap-2 shrink-0 h-auto">
+        <div class="bg-slate-900/60 border border-slate-800/80 p-2.5 rounded-xl shadow-sm relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500 rounded-l-xl"></div>
+          <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">累計実現損益</p>
+          <p id="summaryTotalProfit" class="text-sm sm:text-base font-orbitron font-bold mt-0.5 text-white">0 円</p>
         </div>
-
-        <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl shadow relative overflow-hidden min-w-0">
-          <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-          <p class="text-[10px] text-slate-400 font-bold uppercase truncate">勝率 ＆ トレード数</p>
-          <p id="summaryWinRate" class="text-sm sm:text-lg font-cyber font-bold mt-1 text-white truncate">0 回 <span class="text-[11px] font-normal text-slate-400">(0勝0敗)</span></p>
+        <div class="bg-slate-900/60 border border-slate-800/80 p-2.5 rounded-xl shadow-sm relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1 h-full bg-blue-500 rounded-l-xl"></div>
+          <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">勝率 ＆ 回数</p>
+          <p id="summaryWinRate" class="text-sm font-cyber font-bold mt-0.5 text-white">0 回 <span class="text-[9px] text-slate-400">(0勝)</span></p>
         </div>
-
-        <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl shadow relative overflow-hidden min-w-0">
-          <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-          <p class="text-[10px] text-slate-400 font-bold uppercase truncate">平均利益 / 平均損失</p>
-          <p id="summaryAvgProfitLoss" class="text-xs sm:text-sm font-cyber font-bold mt-1 text-slate-200 truncate">-- / --</p>
+        <div class="bg-slate-900/60 border border-slate-800/80 p-2.5 rounded-xl shadow-sm relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500 rounded-l-xl"></div>
+          <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">平均利益 / 損失</p>
+          <p id="summaryAvgProfitLoss" class="text-xs font-cyber font-bold mt-0.5 text-slate-200">-- / --</p>
         </div>
-
-        <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl shadow relative overflow-hidden min-w-0">
-          <div class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
-          <p class="text-[10px] text-slate-400 font-bold uppercase truncate">プロフィットファクター (PF)</p>
-          <p id="summaryPF" class="text-base sm:text-xl font-orbitron font-bold mt-1 text-purple-300 truncate">--</p>
+        <div class="bg-slate-900/60 border border-slate-800/80 p-2.5 rounded-xl shadow-sm relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1 h-full bg-purple-500 rounded-l-xl"></div>
+          <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">プロフィットファクター</p>
+          <p id="summaryPF" class="text-sm font-orbitron font-bold mt-0.5 text-purple-300">--</p>
         </div>
       </section>
 
       <!-- グラフエリア -->
-      <section class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-xl shadow flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
-        <div class="flex justify-between items-center mb-1.5 shrink-0">
-          <h2 class="text-xs font-bold text-slate-200 uppercase flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-sky-400"></span>
-            資産推移グラフ（実現損益の累計カーブ）
-          </h2>
-          <span class="text-[10px] text-slate-400 font-cyber">古い日付順</span>
-        </div>
-        <div class="relative flex-1 w-full h-full min-h-0 min-w-0">
+      <section class="bg-slate-900/60 border border-slate-800/80 p-3 rounded-xl shadow-sm flex-1 flex flex-col min-h-0 relative">
+        <h2 class="text-[10px] font-bold text-slate-300 mb-1 shrink-0 flex items-center gap-1.5 uppercase tracking-wider font-cyber">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+          Asset Chart
+        </h2>
+        <div class="relative flex-1 w-full h-full min-h-0">
           <canvas id="assetChart"></canvas>
         </div>
       </section>
-
     </div>
 
     <!-- ==============================================
-         TAB 2: 新規トレード登録・修正画面（スクロール可能セーフティ構造）
+         TAB 2: トレード登録画面
     =============================================== -->
-    <div id="tabContent-input" class="tab-content hidden h-full overflow-y-auto flex flex-col items-center justify-start py-1">
-      <div class="w-full max-w-4xl bg-slate-900 border border-slate-800 p-3.5 sm:p-5 rounded-xl shadow-2xl flex flex-col gap-3 my-auto">
+    <div id="tabContent-input" class="tab-content p-2 sm:p-3 flex flex-col min-h-0 overflow-y-auto">
+      <section class="bg-slate-900/60 border border-slate-800/80 p-3 rounded-xl shadow-sm w-full flex flex-col">
         
-        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-          <h2 id="formTitle" class="text-xs font-bold text-white uppercase flex items-center gap-1.5">
-            <span class="text-sky-400 font-black">+</span> 新しいトレードを記録する
+        <div class="flex justify-between items-center mb-3">
+          <h2 id="formTitle" class="text-xs font-bold text-white flex items-center gap-1.5 font-cyber uppercase tracking-wider">
+            <span class="text-cyan-400 text-sm font-black">+</span> New Entry
           </h2>
-          <!-- 編集キャンセルボタン -->
-          <button id="cancelEditBtn" onclick="resetForm()" class="hidden text-xs text-rose-300 bg-rose-950/80 border border-rose-700 px-2 py-0.5 rounded hover:bg-rose-900 font-bold">
-            [×] 編集をやめる
+          <button id="cancelEditBtn" onclick="resetForm()" class="hidden text-[10px] text-rose-300 bg-rose-950/50 border border-rose-800/50 px-2 py-0.5 rounded-md hover:bg-rose-900 transition-colors">
+            [×] Cancel
           </button>
-          <!-- 約定代金リアルタイムバッジ -->
-          <div id="amountBadgeWrap" class="bg-slate-950 border border-slate-800 px-3 py-0.5 rounded-full text-xs flex items-center gap-1.5">
-            <span class="text-slate-400 text-[10px]">目安金額:</span>
-            <span id="previewTotalVal" class="font-cyber font-bold text-sky-400 text-xs sm:text-sm">0 円</span>
+          <div id="amountBadgeWrap" class="text-right">
+            <span class="text-slate-500 text-[9px] block leading-none font-cyber">ESTIMATED VALUE</span>
+            <span id="previewTotalVal" class="font-cyber font-bold text-cyan-400 text-xs">0 円</span>
           </div>
         </div>
 
-        <!-- 入力フォーム (3列×3段・高さ34pxで完全コンパクト化) -->
-        <form id="tradeForm" class="flex flex-col gap-3">
+        <form id="tradeForm" class="flex flex-col gap-2">
           <input type="hidden" id="editTradeId" value="">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            
-            <!-- 1. 決済日 -->
+          
+          <div class="grid grid-cols-2 gap-x-3 gap-y-2">
             <div>
-              <label class="block text-[11px] font-bold text-slate-300 mb-0.5">① 決済日</label>
-              <input type="date" id="tradeDate" required class="w-full h-8 bg-slate-950 border border-slate-700 rounded-lg px-2.5 text-xs text-white focus:outline-none focus:border-sky-500 transition leading-none">
+              <label class="block text-[10px] font-medium text-slate-400 mb-0.5">決済日</label>
+              <input type="date" id="tradeDate" required class="w-full h-7 bg-slate-950 border border-slate-700/80 rounded-md px-2 text-[11px] text-white focus:outline-none focus:border-cyan-500 transition-colors">
             </div>
-
-            <!-- 2. 口座区分 -->
             <div>
-              <label class="block text-[11px] font-bold text-amber-300 mb-0.5">② 口座の種類</label>
-              <select id="tradeAccount" class="w-full h-8 bg-slate-950 border border-slate-700 rounded-lg px-2 text-xs text-white focus:outline-none focus:border-amber-400 transition font-bold leading-none">
-                <option value="特定">特定口座（源泉徴収あり）</option>
-                <option value="NISA(成長)">NISA 成長投資枠（非課税）</option>
-                <option value="NISA(つみたて)">NISA つみたて投資枠（非課税）</option>
+              <label class="block text-[10px] font-medium text-slate-400 mb-0.5">売買区分</label>
+              <select id="tradeType" class="w-full h-7 bg-slate-950 border border-slate-700/80 rounded-md px-1.5 text-[11px] text-white focus:outline-none focus:border-cyan-500 transition-colors">
+                <option value="売">売却 (損益を計算)</option>
+                <option value="買">購入 (記録のみ)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-medium text-slate-400 mb-0.5">銘柄名・コード</label>
+              <input type="text" id="tradeStock" list="stockHistoryList" placeholder="例: 7203" required class="w-full h-7 bg-slate-950 border border-slate-700/80 rounded-md px-2 text-[11px] text-white focus:outline-none focus:border-cyan-500 transition-colors">
+            </div>
+            <div>
+              <label class="block text-[10px] font-medium text-slate-400 mb-0.5">口座</label>
+              <select id="tradeAccount" class="w-full h-7 bg-slate-950 border border-slate-700/80 rounded-md px-1.5 text-[11px] text-white focus:outline-none focus:border-indigo-500/50 transition-colors">
+                <option value="特定">特定口座</option>
+                <option value="NISA(成長)">NISA (成長)</option>
+                <option value="NISA(つみたて)">NISA (つみたて)</option>
                 <option value="一般">一般口座</option>
               </select>
             </div>
-
-            <!-- 3. 銘柄名 -->
             <div>
-              <label class="block text-[11px] font-bold text-slate-300 mb-0.5">③ 銘柄</label>
-              <input type="text" id="tradeStock" list="stockHistoryList" placeholder="例: 7203 トヨタ自動車" required class="w-full h-8 bg-slate-950 border border-slate-700 rounded-lg px-2.5 text-xs text-white focus:outline-none focus:border-sky-500 transition leading-none">
+              <label class="block text-[10px] font-medium text-slate-400 mb-0.5">数量 (株)</label>
+              <input type="number" id="tradeQty" min="1" step="1" placeholder="100" required class="w-full h-7 bg-slate-950 border border-slate-700/80 rounded-md px-2 text-[11px] text-white font-cyber focus:outline-none focus:border-cyan-500 transition-colors">
             </div>
-
-            <!-- 4. 売買区分 -->
             <div>
-              <label class="block text-[11px] font-bold text-slate-300 mb-0.5">④ 売買区分</label>
-              <select id="tradeType" class="w-full h-8 bg-slate-950 border border-slate-700 rounded-lg px-2 text-xs text-white focus:outline-none focus:border-sky-500 transition font-bold leading-none">
-                <option value="売">売却（利益・損失確定）</option>
-                <option value="買">購入（株買付・損益なし）</option>
-              </select>
+              <label class="block text-[10px] font-medium text-slate-400 mb-0.5">手数料・税金 (円)</label>
+              <input type="number" id="tradeFee" min="0" step="any" value="0" required class="w-full h-7 bg-slate-950 border border-slate-700/80 rounded-md px-2 text-[11px] text-white font-cyber focus:outline-none focus:border-cyan-500 transition-colors">
             </div>
-
-            <!-- 5. 数量 -->
-            <div>
-              <label class="block text-[11px] font-bold text-slate-300 mb-0.5">⑤ 数量（株数）</label>
-              <input type="number" id="tradeQty" min="1" step="1" placeholder="100" required class="w-full h-8 bg-slate-950 border border-slate-700 rounded-lg px-2.5 text-xs text-white focus:outline-none focus:border-sky-500 transition leading-none font-cyber">
+            <div id="buyPriceContainer" class="transition-opacity duration-300">
+              <label class="block text-[10px] font-medium text-slate-300 mb-0.5">取得単価 (買った額)</label>
+              <input type="number" id="tradeBuyPrice" min="1" step="any" placeholder="2000" class="w-full h-7 bg-slate-950 border border-slate-700/60 rounded-md px-2 text-[11px] text-white font-cyber focus:outline-none focus:border-cyan-500 transition-colors">
             </div>
-
-            <!-- 6. 約定単価 -->
             <div>
-              <label class="block text-[11px] font-bold text-slate-300 mb-0.5">⑥ 約定単価（円）</label>
-              <input type="number" id="tradePrice" min="1" step="any" placeholder="2500" required class="w-full h-8 bg-slate-950 border border-slate-700 rounded-lg px-2.5 text-xs text-white focus:outline-none focus:border-sky-500 transition leading-none font-cyber">
+              <label class="block text-[10px] font-medium text-cyan-400/80 mb-0.5">約定単価 (売った額)</label>
+              <input type="number" id="tradePrice" min="1" step="any" placeholder="2500" required class="w-full h-7 bg-slate-950 border border-cyan-900/60 rounded-md px-2 text-[11px] text-white font-cyber focus:outline-none focus:border-cyan-500 transition-colors">
             </div>
-
-            <!-- 7. 手数料 -->
             <div>
-              <label class="block text-[11px] font-bold text-slate-300 mb-0.5">⑦ 手数料・税金（円）</label>
-              <input type="number" id="tradeFee" min="0" step="any" value="0" required class="w-full h-8 bg-slate-950 border border-slate-700 rounded-lg px-2.5 text-xs text-white focus:outline-none focus:border-sky-500 transition leading-none font-cyber">
+              <label class="block text-[10px] font-medium text-slate-400 mb-0.5">メモ (任意)</label>
+              <input type="text" id="tradeMemo" list="memoHistoryList" placeholder="理由など" class="w-full h-7 bg-slate-950 border border-slate-700/80 rounded-md px-2 text-[11px] text-white focus:outline-none focus:border-cyan-500 transition-colors">
             </div>
-
-            <!-- 8. 実現損益 -->
-            <div>
-              <label class="block text-[11px] font-bold text-slate-300 mb-0.5">⑧ 実現損益（円） <span class="text-[9px] text-slate-400 font-normal">※売却時のみ</span></label>
-              <input type="number" id="tradeProfit" step="any" placeholder="+50000 または -15000" class="w-full h-8 bg-slate-950 border border-slate-700 rounded-lg px-2.5 text-xs text-white focus:outline-none focus:border-sky-500 transition font-bold leading-none font-cyber">
-            </div>
-
-            <!-- 9. メモ -->
-            <div>
-              <label class="block text-[11px] font-bold text-slate-300 mb-0.5">⑨ メモ・戦略</label>
-              <input type="text" id="tradeMemo" list="memoHistoryList" placeholder="例: 決算またぎ" class="w-full h-8 bg-slate-950 border border-slate-700 rounded-lg px-2.5 text-xs text-white focus:outline-none focus:border-sky-500 transition leading-none">
+            <div id="tradeProfitContainer" class="transition-opacity duration-300">
+              <label class="block text-[10px] font-medium text-blue-400/80 mb-0.5">実現損益 <span class="text-[8px]">(自動計算)</span></label>
+              <input type="number" id="tradeProfit" step="any" readonly class="w-full h-7 bg-slate-950/50 border border-blue-800/50 rounded-md px-2 text-[11px] text-blue-300 font-cyber font-bold outline-none cursor-default">
             </div>
           </div>
 
-          <!-- 保存ボタン -->
-          <div class="flex justify-end pt-1">
-            <button type="submit" id="submitBtn" class="bg-gradient-to-r from-sky-500 to-emerald-500 hover:opacity-90 text-white font-bold py-2 px-8 rounded-lg text-xs transition-all shadow active:scale-95 flex items-center gap-1.5">
-              <span>📝</span> この内容で登録する
+          <div class="mt-2">
+            <button type="submit" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:brightness-110 text-white font-bold h-9 rounded-lg text-[11px] transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-1.5 font-cyber uppercase tracking-widest">
+              Save Entry
             </button>
           </div>
         </form>
-
-      </div>
+      </section>
     </div>
 
     <!-- ==============================================
          TAB 3: 取引履歴一覧
     =============================================== -->
-    <div id="tabContent-history" class="tab-content hidden h-full flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-0 min-w-0">
-      <div class="px-4 py-2.5 border-b border-slate-800 flex justify-between items-center shrink-0">
-        <h2 class="text-xs font-bold text-slate-200 uppercase flex items-center gap-1.5">
-          <span>📋</span> 取引履歴一覧（新しい順）
-        </h2>
-        <span class="text-xs bg-slate-950 px-3 py-0.5 rounded-full border border-slate-800 text-slate-300 font-medium">
-          登録件数: <span id="recordCountBadge" class="text-sky-400 font-bold font-cyber">0</span> 件
-        </span>
-      </div>
-      <!-- 枠内のみ縦スクロール -->
-      <div class="flex-1 overflow-y-auto min-h-0">
-        <table class="w-full text-left border-collapse relative">
-          <thead class="sticky top-0 bg-slate-950 z-10">
-            <tr class="border-b border-slate-800 text-xs font-bold text-slate-300 whitespace-nowrap">
-              <th class="py-2 px-2">決済日</th>
-              <th class="py-2 px-2">口座</th>
-              <th class="py-2 px-2">銘柄</th>
-              <th class="py-2 px-2">売買</th>
-              <th class="py-2 px-2 text-right">数量</th>
-              <th class="py-2 px-2 text-right">単価</th>
-              <th class="py-2 px-2 text-right">手数料</th>
-              <th class="py-2 px-2 text-right">損益</th>
-              <th class="py-2 px-2">メモ</th>
-              <th class="py-2 px-2 text-center">操作</th>
-            </tr>
-          </thead>
-          <tbody id="tradeTableBody" class="divide-y divide-slate-800 text-xs">
-            <!-- JSで動的に追加 -->
-          </tbody>
-        </table>
+    <div id="tabContent-history" class="tab-content p-2 sm:p-3 flex flex-col min-h-0">
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden shadow-sm w-full">
+        <div class="px-3 py-2 border-b border-slate-800/80 flex justify-between items-center shrink-0">
+          <h2 class="text-[11px] font-bold text-slate-200 font-cyber uppercase tracking-wider">📋 History</h2>
+          <span class="text-[10px] text-slate-400 font-medium font-cyber">
+            Total: <span id="recordCountBadge" class="text-cyan-400 font-bold">0</span>
+          </span>
+        </div>
+        <div class="flex-1 overflow-y-auto min-h-0 relative">
+          <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 bg-slate-950/95 backdrop-blur z-10 shadow-sm">
+              <tr class="border-b border-slate-800 text-[10px] font-bold text-slate-400 whitespace-nowrap">
+                <th class="py-1.5 px-2">日付</th>
+                <th class="py-1.5 px-2">銘柄</th>
+                <th class="py-1.5 px-2 text-right">数量</th>
+                <th class="py-1.5 px-2 text-right">単価 <span class="text-[8px] font-normal">(買/売)</span></th>
+                <th class="py-1.5 px-2 text-right">損益</th>
+                <th class="py-1.5 px-2 text-center">操作</th>
+              </tr>
+            </thead>
+            <tbody id="tradeTableBody" class="divide-y divide-slate-800/60 text-[11px]">
+              <!-- JSで追加 -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
   </main>
 
   <script>
-    // 取引履歴データ（空の状態で初期化）
     let trades = [];
     let chartInstance = null;
 
-    // タブ切り替え処理
+    // 滑らかタブ切り替え
     function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.className = 'tab-btn px-3.5 py-1 text-xs font-bold rounded-full transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800 whitespace-nowrap shrink-0';
+        btn.className = 'tab-btn px-3 py-1.5 text-[11px] font-bold rounded-full transition-all duration-300 text-slate-400 hover:text-slate-200 hover:bg-slate-800 whitespace-nowrap shrink-0';
       });
 
       const targetContent = document.getElementById(`tabContent-${tabId}`);
-      if (targetContent) targetContent.classList.remove('hidden');
+      if (targetContent) targetContent.classList.add('active');
 
       const targetBtn = document.getElementById(`tabBtn-${tabId}`);
       if (targetBtn) {
-        targetBtn.className = 'tab-btn px-3.5 py-1 text-xs font-bold rounded-full transition-all bg-sky-500 text-white shadow whitespace-nowrap shrink-0';
+        targetBtn.className = 'tab-btn px-3 py-1.5 text-[11px] font-bold rounded-full transition-all duration-300 bg-cyan-600 text-white shadow-lg shadow-cyan-500/20 whitespace-nowrap shrink-0';
       }
 
-      if (tabId === 'dashboard') {
-        renderChart();
-      }
+      if (tabId === 'dashboard') setTimeout(renderChart, 50);
     }
 
-    // 初期化処理
     document.addEventListener('DOMContentLoaded', () => {
-      // 既存のlocalStorageがあれば読み込み、なければ空配列を保持
       const saved = localStorage.getItem('stock_trades_db');
-      if (saved) {
-        try {
-          trades = JSON.parse(saved);
-        } catch (e) {
-          trades = [];
-        }
-      }
+      if (saved) { try { trades = JSON.parse(saved); } catch (e) { trades = []; } }
 
       document.getElementById('tradeDate').valueAsDate = new Date();
       
       const tradeTypeSelect = document.getElementById('tradeType');
+      const buyPriceContainer = document.getElementById('buyPriceContainer');
+      const buyPriceInput = document.getElementById('tradeBuyPrice');
+      const tradeProfitContainer = document.getElementById('tradeProfitContainer');
       const tradeProfitInput = document.getElementById('tradeProfit');
+      const qtyInput = document.getElementById('tradeQty');
+      const priceInput = document.getElementById('tradePrice');
+      const feeInput = document.getElementById('tradeFee');
+      const previewTotalVal = document.getElementById('previewTotalVal');
+
+      const calculateProfit = () => {
+        if (tradeTypeSelect.value === '買') {
+          tradeProfitInput.value = '0';
+          return;
+        }
+        const qty = parseFloat(qtyInput.value) || 0;
+        const buyPrice = parseFloat(buyPriceInput.value) || 0;
+        const sellPrice = parseFloat(priceInput.value) || 0;
+        const fee = parseFloat(feeInput.value) || 0;
+        if (qty > 0 && buyPrice > 0 && sellPrice > 0) {
+          tradeProfitInput.value = (sellPrice - buyPrice) * qty - fee;
+        }
+      };
+
+      qtyInput.addEventListener('input', calculateProfit);
+      buyPriceInput.addEventListener('input', calculateProfit);
+      priceInput.addEventListener('input', calculateProfit);
+      feeInput.addEventListener('input', calculateProfit);
 
       const handleTypeChange = () => {
         if (tradeTypeSelect.value === '買') {
+          buyPriceContainer.classList.add('opacity-20', 'pointer-events-none');
+          buyPriceInput.required = false;
           tradeProfitInput.value = '0';
-          tradeProfitInput.disabled = true;
-          tradeProfitInput.classList.add('opacity-40', 'cursor-not-allowed');
+          tradeProfitContainer.classList.add('opacity-20', 'pointer-events-none');
         } else {
-          tradeProfitInput.disabled = false;
-          tradeProfitInput.classList.remove('opacity-40', 'cursor-not-allowed');
+          buyPriceContainer.classList.remove('opacity-20', 'pointer-events-none');
+          buyPriceInput.required = true;
+          tradeProfitContainer.classList.remove('opacity-20', 'pointer-events-none');
+          calculateProfit();
         }
       };
       tradeTypeSelect.addEventListener('change', handleTypeChange);
       handleTypeChange();
 
-      // 約定代金リアルタイム計算
-      const qtyInput = document.getElementById('tradeQty');
-      const priceInput = document.getElementById('tradePrice');
-      const previewTotalVal = document.getElementById('previewTotalVal');
-
       const updatePreview = () => {
         const qty = parseFloat(qtyInput.value) || 0;
         const price = parseFloat(priceInput.value) || 0;
-        const total = qty * price;
-        previewTotalVal.textContent = new Intl.NumberFormat('ja-JP').format(total) + ' 円';
+        previewTotalVal.textContent = new Intl.NumberFormat('ja-JP').format(qty * price) + ' 円';
       };
-
       qtyInput.addEventListener('input', updatePreview);
       priceInput.addEventListener('input', updatePreview);
 
-      // バックアップファイル読み込み監視
       document.getElementById('importFile').addEventListener('change', handleImportJson);
 
       switchTab('dashboard');
       render();
     });
 
-    // フォーム送信処理（新規登録 ＆ 修正保存）
     document.getElementById('tradeForm').addEventListener('submit', (e) => {
       e.preventDefault();
-
       const editId = document.getElementById('editTradeId').value;
       const type = document.getElementById('tradeType').value;
       const profitVal = parseFloat(document.getElementById('tradeProfit').value);
@@ -416,6 +371,7 @@
         stock: document.getElementById('tradeStock').value.trim(),
         type: type,
         qty: parseInt(document.getElementById('tradeQty').value, 10),
+        buyPrice: type === '売' ? parseFloat(document.getElementById('tradeBuyPrice').value) || 0 : 0,
         price: parseFloat(document.getElementById('tradePrice').value),
         fee: parseFloat(document.getElementById('tradeFee').value) || 0,
         profit: (type === '売' && !isNaN(profitVal)) ? profitVal : 0,
@@ -424,10 +380,7 @@
 
       if (editId) {
         const index = trades.findIndex(t => t.id === Number(editId));
-        if (index !== -1) {
-          trades[index] = tradeData;
-        }
-        alert('取引内容を正常に更新しました！');
+        if (index !== -1) trades[index] = tradeData;
       } else {
         trades.push(tradeData);
       }
@@ -438,7 +391,6 @@
       switchTab('history');
     });
 
-    // フォームを新規登録モードへリセット
     function resetForm() {
       document.getElementById('tradeForm').reset();
       document.getElementById('editTradeId').value = '';
@@ -447,12 +399,10 @@
       document.getElementById('tradeType').value = '売';
       document.getElementById('tradeType').dispatchEvent(new Event('change'));
       document.getElementById('previewTotalVal').textContent = '0 円';
-
-      document.getElementById('formTitle').innerHTML = '<span class="text-sky-400 font-black">+</span> 新しいトレードを記録する';
+      document.getElementById('formTitle').innerHTML = '<span class="text-cyan-400 text-sm font-black">+</span> New Entry';
       document.getElementById('cancelEditBtn').classList.add('hidden');
     }
 
-    // 編集モードにする
     function editTrade(id) {
       const target = trades.find(t => t.id === id);
       if (!target) return;
@@ -463,47 +413,39 @@
       document.getElementById('tradeStock').value = target.stock;
       document.getElementById('tradeType').value = target.type;
       document.getElementById('tradeType').dispatchEvent(new Event('change'));
+      
       document.getElementById('tradeQty').value = target.qty;
+      document.getElementById('tradeBuyPrice').value = target.buyPrice || '';
       document.getElementById('tradePrice').value = target.price;
       document.getElementById('tradeFee').value = target.fee;
       document.getElementById('tradeProfit').value = target.profit;
       document.getElementById('tradeMemo').value = target.memo || '';
+      document.getElementById('previewTotalVal').textContent = new Intl.NumberFormat('ja-JP').format(target.qty * target.price) + ' 円';
 
-      const total = target.qty * target.price;
-      document.getElementById('previewTotalVal').textContent = new Intl.NumberFormat('ja-JP').format(total) + ' 円';
-
-      document.getElementById('formTitle').innerHTML = '<span class="text-amber-400 font-black">✎</span> 取引内容を修正中 <span class="text-amber-300 text-[10px] ml-1">[ID: ' + id + ']</span>';
+      document.getElementById('formTitle').innerHTML = '<span class="text-amber-400 font-black">✎</span> Edit Entry';
       document.getElementById('cancelEditBtn').classList.remove('hidden');
-
       switchTab('input');
     }
 
-    // 削除処理
     function deleteTrade(id) {
-      if (!confirm('この取引記録を削除してもよろしいですか？')) return;
+      if (!confirm('この履歴を削除しますか？')) return;
       trades = trades.filter(t => t.id !== id);
       saveData();
       render();
     }
 
-    // 全データ初期化処理
     function resetAllData() {
-      if (confirm('すべての登録データ（取引履歴）を完全に消去して初期化しますか？この操作は元に戻せません。')) {
+      if (confirm('全てのデータを初期化しますか？')) {
         trades = [];
         saveData();
         render();
         resetForm();
         switchTab('dashboard');
-        alert('データをすべて初期化しました。');
       }
     }
 
-    // localStorage保存
-    function saveData() {
-      localStorage.setItem('stock_trades_db', JSON.stringify(trades));
-    }
+    function saveData() { localStorage.setItem('stock_trades_db', JSON.stringify(trades)); }
 
-    // 通貨フォーマット
     function formatCurrency(num, showSign = false) {
       if (isNaN(num)) return '--';
       const formatted = new Intl.NumberFormat('ja-JP').format(num);
@@ -511,137 +453,98 @@
       return `${formatted} 円`;
     }
 
-    // 画面全体再描画 ＆ 履歴サジェスト（datalist）更新
     function render() {
       renderSummary();
       renderTable();
-      renderChart();
+      if(document.getElementById('tabContent-dashboard').classList.contains('active')) renderChart();
       updateHistoryDatalists();
     }
 
-    // 過去に入力した履歴を記憶してサジェストに反映
     function updateHistoryDatalists() {
       const stocks = [...new Set(trades.map(t => t.stock).filter(Boolean))];
       const memos = [...new Set(trades.map(t => t.memo).filter(Boolean))];
-
       document.getElementById('stockHistoryList').innerHTML = stocks.map(s => `<option value="${s}">`).join('');
       document.getElementById('memoHistoryList').innerHTML = memos.map(m => `<option value="${m}">`).join('');
     }
 
-    // 1. サマリー計算
     function renderSummary() {
       const totalTrades = trades.length;
       const totalProfit = trades.reduce((sum, t) => sum + (t.profit || 0), 0);
-
       const winTrades = trades.filter(t => t.profit > 0);
       const loseTrades = trades.filter(t => t.profit < 0);
       const winCount = winTrades.length;
       const loseCount = loseTrades.length;
-      const decisionCount = winCount + loseCount;
-
-      const winRate = decisionCount > 0 ? ((winCount / decisionCount) * 100).toFixed(1) : '0.0';
-
+      
       const totalWinProfit = winTrades.reduce((sum, t) => sum + t.profit, 0);
       const totalLoseLoss = Math.abs(loseTrades.reduce((sum, t) => sum + t.profit, 0));
-
       const avgWin = winCount > 0 ? Math.round(totalWinProfit / winCount) : 0;
       const avgLose = loseCount > 0 ? Math.round(totalLoseLoss / loseCount) : 0;
 
       let pf = '--';
-      if (totalLoseLoss > 0) {
-        pf = (totalWinProfit / totalLoseLoss).toFixed(2);
-      } else if (totalWinProfit > 0) {
-        pf = '∞';
-      }
+      if (totalLoseLoss > 0) pf = (totalWinProfit / totalLoseLoss).toFixed(2);
+      else if (totalWinProfit > 0) pf = '∞';
 
       const totalEl = document.getElementById('summaryTotalProfit');
       totalEl.textContent = formatCurrency(totalProfit, true);
-      totalEl.className = 'text-base sm:text-xl font-orbitron font-bold mt-0.5 truncate ' + (totalProfit > 0 ? 'text-sky-400' : totalProfit < 0 ? 'text-rose-400' : 'text-white');
+      totalEl.className = 'text-sm sm:text-base font-orbitron font-bold mt-0.5 truncate ' + (totalProfit > 0 ? 'text-cyan-400' : totalProfit < 0 ? 'text-rose-400' : 'text-white');
 
-      document.getElementById('summaryWinRate').innerHTML = 
-        `${totalTrades} 回 <span class="text-xs font-semibold text-slate-300">(${winCount}勝${loseCount}敗)</span>`;
-      
-      document.getElementById('summaryAvgProfitLoss').innerHTML = 
-        `<span class="text-emerald-400 font-bold font-cyber">${formatCurrency(avgWin, true)}</span> / <span class="text-rose-400 font-bold font-cyber">-${formatCurrency(avgLose)}</span>`;
-      
+      document.getElementById('summaryWinRate').innerHTML = `${totalTrades} 回 <span class="text-[9px] text-slate-300">(${winCount}勝)</span>`;
+      document.getElementById('summaryAvgProfitLoss').innerHTML = `<span class="text-blue-400 font-cyber">${formatCurrency(avgWin, true)}</span> / <span class="text-rose-400 font-cyber">-${formatCurrency(avgLose)}</span>`;
       document.getElementById('summaryPF').textContent = pf;
 
       const miniTotalEl = document.getElementById('miniTotalProfit');
       miniTotalEl.textContent = formatCurrency(totalProfit, true);
-      miniTotalEl.className = 'font-cyber font-bold text-xs sm:text-sm ' + (totalProfit > 0 ? 'text-sky-400' : totalProfit < 0 ? 'text-rose-400' : 'text-white');
-      document.getElementById('miniWinRate').textContent = `${winRate}%`;
-
+      miniTotalEl.className = 'font-cyber font-bold text-[11px] ' + (totalProfit > 0 ? 'text-cyan-400' : totalProfit < 0 ? 'text-rose-400' : 'text-white');
       document.getElementById('recordCountBadge').textContent = totalTrades;
     }
 
-    // 2. 取引履歴テーブル描画（文字折り返し完全防止）
     function renderTable() {
       const tbody = document.getElementById('tradeTableBody');
       tbody.innerHTML = '';
-
       const sortedTrades = [...trades].sort((a, b) => {
         if (a.date !== b.date) return new Date(b.date) - new Date(a.date);
         return b.id - a.id;
       });
 
       if (sortedTrades.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="10" class="py-10 text-center text-slate-400 text-xs">
-              まだ取引記録がありません。「✏️ トレードを記録・修正」タブから最初の記録を追加してみましょう！
-            </td>
-          </tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-[10px] font-cyber uppercase tracking-wider">No Records Found</td></tr>`;
         return;
       }
 
       sortedTrades.forEach(t => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-800/50 transition-colors whitespace-nowrap';
-
-        let profitClass = 'text-slate-200';
-        if (t.profit > 0) profitClass = 'text-sky-400 font-bold';
+        let profitClass = 'text-slate-300';
+        if (t.profit > 0) profitClass = 'text-cyan-400 font-bold';
         if (t.profit < 0) profitClass = 'text-rose-400 font-bold';
 
-        const accountVal = t.account || '特定';
-        let accountBadge = `<span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-slate-800 text-slate-300 border border-slate-700 whitespace-nowrap">${accountVal}</span>`;
-        if (accountVal.includes('NISA')) {
-          accountBadge = `<span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-amber-500/20 text-amber-200 border border-amber-500/60 whitespace-nowrap">${accountVal}</span>`;
-        }
+        const formattedBuy = (t.type === '売' && t.buyPrice) ? new Intl.NumberFormat('ja-JP').format(t.buyPrice) : '-';
+        const formattedSell = new Intl.NumberFormat('ja-JP').format(t.price);
 
         const typeBadge = t.type === '売'
-          ? '<span class="px-1.5 py-0.5 text-[10px] font-extrabold rounded bg-rose-500/20 text-rose-300 border border-rose-500/50 whitespace-nowrap">売却</span>'
-          : '<span class="px-1.5 py-0.5 text-[10px] font-extrabold rounded bg-sky-500/20 text-sky-200 border border-sky-500/50 whitespace-nowrap">購入</span>';
+          ? '<span class="text-[8px] px-1 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded ml-1">売</span>'
+          : '<span class="text-[8px] px-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded ml-1">買</span>';
 
         tr.innerHTML = `
-          <td class="py-2 px-2 text-slate-300 whitespace-nowrap font-cyber">${t.date}</td>
-          <td class="py-2 px-2 whitespace-nowrap">${accountBadge}</td>
-          <td class="py-2 px-2 font-bold text-white max-w-[100px] truncate">${t.stock}</td>
-          <td class="py-2 px-2 whitespace-nowrap">${typeBadge}</td>
+          <td class="py-2 px-2 text-slate-300 whitespace-nowrap font-cyber text-[10px]">${t.date.slice(5)}</td>
+          <td class="py-2 px-2 font-bold text-white max-w-[90px] truncate">${t.stock} ${typeBadge}</td>
           <td class="py-2 px-2 text-right whitespace-nowrap font-cyber">${new Intl.NumberFormat('ja-JP').format(t.qty)}</td>
-          <td class="py-2 px-2 text-right whitespace-nowrap font-cyber">${new Intl.NumberFormat('ja-JP').format(t.price)} 円</td>
-          <td class="py-2 px-2 text-right text-slate-300 whitespace-nowrap font-cyber">${new Intl.NumberFormat('ja-JP').format(t.fee)} 円</td>
-          <td class="py-2 px-2 text-right ${profitClass} whitespace-nowrap font-cyber">${formatCurrency(t.profit, true)}</td>
-          <td class="py-2 px-2 text-slate-200 max-w-[110px] truncate">${t.memo || '-'}</td>
-          <td class="py-2 px-2 text-center whitespace-nowrap flex items-center justify-center gap-1.5">
-            <button onclick="editTrade(${t.id})" class="text-amber-300 hover:text-amber-200 font-bold transition-colors">修正</button>
-            <span class="text-slate-700">|</span>
-            <button onclick="deleteTrade(${t.id})" class="text-rose-400 hover:text-rose-300 font-bold transition-colors">削除</button>
+          <td class="py-2 px-2 text-right whitespace-nowrap font-cyber">
+            <div class="text-[9px] text-slate-400 leading-tight">${formattedBuy}</div>
+            <div class="text-[11px] text-cyan-100 leading-tight">${formattedSell}</div>
+          </td>
+          <td class="py-2 px-2 text-right ${profitClass} whitespace-nowrap font-cyber">${t.type === '売' ? formatCurrency(t.profit, true) : '-'}</td>
+          <td class="py-2 px-2 text-center whitespace-nowrap">
+            <button onclick="editTrade(${t.id})" class="text-amber-300/80 hover:text-amber-300 text-[10px] mr-1">📝</button>
+            <button onclick="deleteTrade(${t.id})" class="text-rose-400/80 hover:text-rose-400 text-[10px]">🗑</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // 3. グラフ描画
     function renderChart() {
-      const isDashboardHidden = document.getElementById('tabContent-dashboard').classList.contains('hidden');
-      if (isDashboardHidden) return;
-
       const ctx = document.getElementById('assetChart').getContext('2d');
-
-      if (chartInstance) {
-        chartInstance.destroy();
-      }
+      if (chartInstance) chartInstance.destroy();
 
       const sortedForChart = [...trades].sort((a, b) => {
         if (a.date !== b.date) return new Date(a.date) - new Date(b.date);
@@ -651,160 +554,74 @@
       let cumulativeProfit = 0;
       const labels = [];
       const dataPoints = [];
-
       sortedForChart.forEach((t, i) => {
         cumulativeProfit += (t.profit || 0);
-        labels.push(`${t.date} (#${i + 1})`);
+        labels.push(`${t.date.slice(5)}`);
         dataPoints.push(cumulativeProfit);
       });
 
-      const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-      gradient.addColorStop(0, 'rgba(14, 165, 233, 0.4)');
-      gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.2)');
+      const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+      gradient.addColorStop(0, 'rgba(6, 182, 212, 0.4)');
       gradient.addColorStop(1, 'rgba(15, 23, 42, 0.0)');
 
       chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: labels.length > 0 ? labels : ['データなし'],
+          labels: labels.length > 0 ? labels : ['-'],
           datasets: [{
-            label: '累計実現損益 (円)',
+            label: '累計損益',
             data: dataPoints.length > 0 ? dataPoints : [0],
-            borderColor: 'rgb(56, 189, 248)',
+            borderColor: 'rgb(6, 182, 212)',
             backgroundColor: gradient,
-            borderWidth: 2.5,
-            pointBackgroundColor: 'rgb(52, 211, 153)',
-            pointBorderColor: 'rgb(255, 255, 255)',
-            pointBorderWidth: 1,
-            pointRadius: 3.5,
-            pointHoverRadius: 5.5,
+            borderWidth: 2,
+            pointBackgroundColor: 'rgb(59, 130, 246)',
+            pointRadius: 2,
             fill: true,
-            tension: 0.25
+            tension: 0.3
           }]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          responsive: true, maintainAspectRatio: false,
           scales: {
-            x: {
-              grid: { color: 'rgba(51, 65, 85, 0.4)' },
-              ticks: { color: 'rgb(226, 232, 240)', font: { size: 10, family: 'Rajdhani', weight: 'bold' } }
-            },
+            x: { display: false },
             y: {
-              grid: { color: 'rgba(51, 65, 85, 0.4)' },
-              ticks: {
-                color: 'rgb(226, 232, 240)',
-                font: { size: 10, family: 'Rajdhani', weight: 'bold' },
-                callback: (value) => new Intl.NumberFormat('ja-JP').format(value) + ' 円'
-              }
+              grid: { color: 'rgba(51, 65, 85, 0.3)' },
+              ticks: { color: 'rgb(148, 163, 184)', font: { size: 9, family: 'Rajdhani' }, maxTicksLimit: 5 }
             }
           },
-          plugins: {
-            legend: {
-              labels: { color: 'rgb(255, 255, 255)', font: { size: 11, family: 'Rajdhani', weight: 'bold' } }
-            },
-            tooltip: {
-              backgroundColor: 'rgba(15, 23, 42, 0.95)',
-              titleFont: { size: 12, family: 'Rajdhani', weight: 'bold' },
-              bodyFont: { size: 12, family: 'Rajdhani' },
-              padding: 8,
-              borderColor: 'rgba(56, 189, 248, 0.5)',
-              borderWidth: 1,
-              callbacks: {
-                label: (context) => `累計損益: ${formatCurrency(context.raw, true)}`
-              }
-            }
-          }
+          plugins: { legend: { display: false } }
         }
       });
     }
 
-    // ==========================================
-    // 4. バックアップ保存・復元・CSV出力
-    // ==========================================
-
     function exportJson() {
-      if (trades.length === 0) {
-        alert('保存するデータがありません。まずは取引を記録してください。');
-        return;
-      }
-      const dataStr = JSON.stringify(trades, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `kabutrade_backup_${new Date().toISOString().slice(0,10)}.json`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      if (trades.length === 0) return alert('データがありません。');
+      const blob = new Blob([JSON.stringify(trades)], { type: 'application/json' });
+      const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
+      link.download = `tradelog_${new Date().toISOString().slice(0,10)}.json`; link.click();
     }
 
-    function triggerImport() {
-      document.getElementById('importFile').click();
-    }
-
-    function handleImportJson(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
+    function triggerImport() { document.getElementById('importFile').click(); }
+    function handleImportJson(e) {
+      const file = e.target.files[0]; if (!file) return;
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function(evt) {
         try {
-          const importedData = JSON.parse(e.target.result);
-
-          if (!Array.isArray(importedData)) {
-            throw new Error('データ形式が正しくありません。');
-          }
-
-          if (confirm(`読み込んだ ${importedData.length} 件のデータで現在の記録を復元（上書き）しますか？`)) {
-            trades = importedData;
-            saveData();
-            render();
-            alert('データを正常に復元しました！');
-          }
-        } catch (error) {
-          alert('ファイルの読み込みに失敗しました。正しいバックアップファイルを選択してください。');
-        } finally {
-          event.target.value = '';
-        }
+          trades = JSON.parse(evt.target.result);
+          saveData(); render(); alert('復元しました');
+        } catch (err) { alert('失敗しました'); } finally { e.target.value = ''; }
       };
       reader.readAsText(file);
     }
 
     function exportCsv() {
-      if (trades.length === 0) {
-        alert('出力できるデータがありません。');
-        return;
-      }
-
+      if (trades.length === 0) return alert('データがありません。');
       const sorted = [...trades].sort((a, b) => new Date(b.date) - new Date(a.date));
-      const headers = ['決済日', '口座種類', '銘柄名', '売買区分', '数量', '約定単価', '手数料・税金', '実現損益', 'メモ'];
-      const csvRows = [headers.join(',')];
-
-      sorted.forEach(t => {
-        const row = [
-          `"${t.date}"`,
-          `"${t.account || '特定'}"`,
-          `"${t.stock.replace(/"/g, '""')}"`,
-          `"${t.type}"`,
-          t.qty,
-          t.price,
-          t.fee,
-          t.profit,
-          `"${(t.memo || '').replace(/"/g, '""')}"`
-        ];
-        csvRows.push(row.join(','));
-      });
-
-      const csvContent = '\uFEFF' + csvRows.join('\r\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `kabutrade_history_${new Date().toISOString().slice(0,10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const csvRows = ['決済日,口座,銘柄,売買,数量,取得単価,約定単価,手数料,実現損益,メモ'];
+      sorted.forEach(t => csvRows.push(`"${t.date}","${t.account || ''}","${t.stock}","${t.type}",${t.qty},${t.buyPrice||0},${t.price},${t.fee},${t.profit},"${t.memo||''}"`));
+      const blob = new Blob(['\uFEFF' + csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
+      link.download = `tradelog_${new Date().toISOString().slice(0,10)}.csv`; link.click();
     }
   </script>
 </body>
