@@ -4,10 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
+  <!-- iPhone ホーム画面追加用設定 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="TRADE LOG">
-  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJiZyIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzBlYTVlOSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFkNGVkOCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTEyIiBmaWxsPSJ1cmwoI2JnKSIvPjxwYXRoIGQ9Ik0xMjAgMzgwIEwxMjAgMjgwIEwyMDAgMjgwIEwyMDAgMzgwIFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9IjAuOSIvPjxwYXRoIGQ9Ik0yMjAgMzgwIEwyMjAgMTgwIEwzMDAgMTgwIEwzMDAgMzgwIFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9IjAuOSIvPjxwYXRoIGQ9Ik0zMjAgMzgwIEwzMjAgMTAwIEw0MDAgMTAwIEw0MDAgMzgwIFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9IjAuOSIvPjwvc3ZnPg==">
+  
+  <!-- カッコいいサイバーチャートアイコン (SVG Base64) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzBmMTcyYSIvPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZzEiIHgxPSIwIiB5MT0iMCIgeDI9IjUxMiIgeTI9IjUxMiI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzIyZDNlZSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzI1NjNlYiIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJnMiIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjUxMiI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzIyZDNlZSIgc3RvcC1vcGFjaXR5PSIwLjUiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwZjE3MmEiIHN0b3Atb3BhY2l0eT0iMCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9Ik0gODAgMzIwIEwgMjAwIDIyMCBMIDMwMCAyODAgTCA0MzIgMTQwIEwgNDMyIDQwMCBMIDgwIDQwMCBaIiBmaWxsPSJ1cmwoI2cyKSIvPjxwYXRoIGQ9Ik0gODAgMzIwIEwgMjAwIDIyMCBMIDMwMCAyODAgTCA0MzIgMTQwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZzEpIiBzdHJva2Utd2lkdGg9IjM2IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48Y2lyY2xlIGN4PSI0MzIiIGN5PSIxNDAiIHI9IjI0IiBmaWxsPSIjMjU2M2ViIiBzdHJva2U9IiMwZjE3MmEiIHN0cm9rZS13aWR0aD0iMTIiLz48L3N2Zz4=">
 
   <title>TRADE LOG</title>
   
@@ -31,7 +34,7 @@
       font-family: 'Orbitron', sans-serif;
     }
 
-    /* 極上の滑らかトランジション（共通クラス） */
+    /* 極上の滑らかトランジション */
     .tab-content {
       position: absolute;
       inset: 0;
@@ -70,7 +73,7 @@
   <datalist id="memoHistoryList"></datalist>
 
   <!-- =========================================================
-       1. コンパクト・ヘッダー (スタイリッシュなロゴと英字タイトル)
+       1. コンパクト・ヘッダー
   ========================================================== -->
   <header class="bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 px-3 py-1.5 flex justify-between items-center z-20 shrink-0">
     <div class="flex items-center gap-2">
@@ -112,7 +115,7 @@
   </nav>
 
   <!-- =========================================================
-       3. メイン画面（統一されたパディングと絶対配置コンテナ）
+       3. メイン画面
   ========================================================== -->
   <main class="flex-1 min-h-0 min-w-0 relative">
 
@@ -120,7 +123,6 @@
          TAB 1: 資産ダッシュボード
     =============================================== -->
     <div id="tabContent-dashboard" class="tab-content active p-2 sm:p-3 flex flex-col gap-2 min-h-0">
-      <!-- 成績4カード -->
       <section class="grid grid-cols-2 gap-2 shrink-0 h-auto">
         <div class="bg-slate-900/60 border border-slate-800/80 p-2.5 rounded-xl shadow-sm relative overflow-hidden">
           <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500 rounded-l-xl"></div>
@@ -144,7 +146,6 @@
         </div>
       </section>
 
-      <!-- グラフエリア -->
       <section class="bg-slate-900/60 border border-slate-800/80 p-3 rounded-xl shadow-sm flex-1 flex flex-col min-h-0 relative">
         <h2 class="text-[10px] font-bold text-slate-300 mb-1 shrink-0 flex items-center gap-1.5 uppercase tracking-wider font-cyber">
           <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
