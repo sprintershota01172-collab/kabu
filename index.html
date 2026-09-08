@@ -9,10 +9,55 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="TRADE LOG">
   
-  <!-- カッコいいサイバーチャートアイコン (SVG Base64) -->
-  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzBmMTcyYSIvPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZzEiIHgxPSIwIiB5MT0iMCIgeDI9IjUxMiIgeTI9IjUxMiI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzIyZDNlZSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzI1NjNlYiIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJnMiIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjUxMiI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzIyZDNlZSIgc3RvcC1vcGFjaXR5PSIwLjUiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwZjE3MmEiIHN0b3Atb3BhY2l0eT0iMCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9Ik0gODAgMzIwIEwgMjAwIDIyMCBMIDMwMCAyODAgTCA0MzIgMTQwIEwgNDMyIDQwMCBMIDgwIDQwMCBaIiBmaWxsPSJ1cmwoI2cyKSIvPjxwYXRoIGQ9Ik0gODAgMzIwIEwgMjAwIDIyMCBMIDMwMCAyODAgTCA0MzIgMTQwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZzEpIiBzdHJva2Utd2lkdGg9IjM2IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48Y2lyY2xlIGN4PSI0MzIiIGN5PSIxNDAiIHI9IjI0IiBmaWxsPSIjMjU2M2ViIiBzdHJva2U9IiMwZjE3MmEiIHN0cm9rZS13aWR0aD0iMTIiLz48L3N2Zz4=">
-
   <title>TRADE LOG</title>
+
+  <!-- iOSホーム画面アイコン自動生成スクリプト（SVG非対応のiOS向けにPNGを動的生成） -->
+  <script>
+    (function() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 180;
+      canvas.height = 180;
+      const ctx = canvas.getContext('2d');
+      
+      // 背景（ダークネイビー）
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, 180, 180);
+      
+      // 線の設定
+      ctx.lineWidth = 14;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      // グラデーション（シアン〜ブルー）
+      const grad = ctx.createLinearGradient(0, 0, 180, 180);
+      grad.addColorStop(0, '#22d3ee');
+      grad.addColorStop(1, '#2563eb');
+      ctx.strokeStyle = grad;
+      
+      // 右肩上がりのチャートを描画
+      ctx.beginPath();
+      ctx.moveTo(30, 120);
+      ctx.lineTo(75, 75);
+      ctx.lineTo(110, 100);
+      ctx.lineTo(150, 50);
+      ctx.stroke();
+      
+      // チャート終点のアクセント丸
+      ctx.beginPath();
+      ctx.arc(150, 50, 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#2563eb';
+      ctx.fill();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#0f172a';
+      ctx.stroke();
+      
+      // 生成したPNGをiOS用アイコンとしてヘッダーに追加
+      const link = document.createElement('link');
+      link.rel = 'apple-touch-icon';
+      link.href = canvas.toDataURL('image/png');
+      document.head.appendChild(link);
+    })();
+  </script>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
